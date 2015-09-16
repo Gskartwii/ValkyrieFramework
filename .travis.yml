@@ -1,2 +1,4 @@
+before_install:
+  - chmod +x install_ci_dependencies.sh
 install:
   - ./install_ci_dependencies.sh
