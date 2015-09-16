@@ -8,6 +8,11 @@ env:
   matrix:
     - LUA=luajit
 
+addons:
+  apt:
+	packages:
+	  - liblz4-dev
+
 before_install:
   - source .travis/setenv_lua.sh
   - pip install --user cpp-coveralls
@@ -18,7 +23,6 @@ before_install:
 install:
   - luarocks install bit32
   - luarocks install luafilesystem
-  - sudo apt-get install -qq liblz4-dev
 
 script:
   - git clone https://github.com/ValkyrieRBXL/Valkyrie_CI .Builder/
