@@ -9,10 +9,6 @@ env:
     - LUA=lua5.1
     - LUA=luajit     # latest stable version (2.0.3)
 
-branches:
-  only:
-    - master
-
 before_install:
   - source .travis/setenv_lua.sh
   - pip install --user cpp-coveralls
