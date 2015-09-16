@@ -10,8 +10,8 @@ env:
 
 addons:
   apt:
-	packages:
-	  - liblz4-dev
+    packages:
+      - liblz4-dev
 
 before_install:
   - source .travis/setenv_lua.sh
