@@ -1,4 +1,38 @@
+language: c
+
+sudo: false
+
+env:
+  global:
+    - LUAROCKS=2.2.2
+  matrix:
+    - LUA=lua5.1
+    - LUA=luajit     # latest stable version (2.0.3)
+
+branches:
+  only:
+    - master
+
 before_install:
-  - chmod +x install_ci_dependencies.sh
+  - source .travis/setenv_lua.sh
+  - pip install --user cpp-coveralls
+  - luarocks install Lua-cURL         --server=https://luarocks.org/dev
+  - luarocks install luacov-coveralls --server=https://luarocks.org/dev
+  - luarocks install lunitx
+
 install:
-  - ./install_ci_dependencies.sh
+  - luarocks make rockspecs/foo-scm-0.rockspec CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
+
+script:
+  - git clone https://github.com/ValkyrieRBXL/Valkyrie_CI .Builder/
+  - ln -s . .Builder/build/MainModule.mod.lua
+  - ./Builder/Test.lua -- .
+
+after_success:
+  - coveralls -b .. -r .. -i ./src --dump c.report.json
+  - luacov-coveralls -j c.report.json -v
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
