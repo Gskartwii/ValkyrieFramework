@@ -1,2 +1,2 @@
 install:
-	- ./install_ci_dependencies.sh
+  - ./install_ci_dependencies.sh
