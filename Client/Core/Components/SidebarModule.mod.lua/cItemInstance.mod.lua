@@ -20,6 +20,9 @@ local SharedMetatable 		= {
 			error("New index? Have some music instead! \14\14\14", 2);
 		end
 	end;
+    __div                   = function(self, Index)
+        return SharedVariables[self][Index];
+    end;
 };
 
 function cItemInstance.new(Item)
@@ -50,8 +53,8 @@ function InstanceFunctions:TweenBackgroundColor(NewColor, Tween, Duration, Async
 	AssertType("Argument #3", Duration, "number", 	true);
 	AssertType("Argument #4", Async, 	"boolean", 	true);
 
-	local MainObject 			= self:GetRaw();
-	local Extend	 			= self:GetExtension();
+	local MainObject 			= self/'Raw';
+	local Extend	 			= self/'Extension';
 
 	local function Runner()
 		spawn(function() 	MainObject:TweenBackgroundColor3(NewColor, Tween, Duration); end);
@@ -71,8 +74,8 @@ function InstanceFunctions:TweenOnX(New, Tween, Duration, Async)
 	AssertType("Argument #3", Duration, "number", 	true);
 	AssertType("Argument #4", Async, 	"boolean", 	true);
 
-	local MainObject 			= self:GetRaw();
-	local Extend	 			= self:GetExtension();
+	local MainObject 			= self/'Raw';
+	local Extend	 			= self/'Extension';
 
 	local function Runner()
 		spawn(function() 	Extend		:VTweenSize(	UDim2.new(0, 10 + New, 1, 0),  Tween, Duration); end);
@@ -111,7 +114,7 @@ function InstanceFunctions:SetCallback(Callback)
 		Callback();
 	end
 
-	SharedVariables[self].Connection	= self:GetRaw().InputEnded:connect(Connection);
+	SharedVariables[self].Connection	= self/'Raw'.InputEnded:connect(Connection);
 end
 
 return cItemInstance;
