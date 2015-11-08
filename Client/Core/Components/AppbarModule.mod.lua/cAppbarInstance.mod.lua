@@ -21,7 +21,10 @@ local SharedMetatable 		= {
 	__newindex 				= function(_,k,v)
 		pcall(function() rawset({}, k, v); end);
 		error("I set an index somewhere. Where? Who knows.", 2);
-	end
+	end;
+    __div                   = function(self, Index)
+        return SharedVariables[self][Index];
+    end;
 };
 
 local function spawn(f)
