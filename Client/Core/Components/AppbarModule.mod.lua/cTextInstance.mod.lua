@@ -12,10 +12,10 @@ FakeMT.__len 					= 5678;
 FakeMT.__newindex 				= FakeMT.__tostring; -- Looks like it could be __newindex
 
 local CommonMetatable			= {
-	__index 		= InstanceFunctions;
-	__metatable 	= FakeMT;
-	__len 		= function() return "This table is longer than IE6's loading times!!"; end;
-	__newindex 	= function(self,k,v)
+	__index 		            = InstanceFunctions;
+	__metatable 	            = FakeMT;
+	__len 		                = function() return "This table is longer than IE6's loading times!!"; end;
+	__newindex 	                = function(self,k,v)
 		if SharedVariables[self][k] ~= nil then
 			SharedVariables[self][k] = v;
 		else
@@ -27,6 +27,9 @@ local CommonMetatable			= {
 			end);
 		end
 	end;
+    __div                       = function(self, Index)
+        return SharedVariables[self][Index];
+    end;
 };
 
 local function spawn(f)
@@ -34,7 +37,7 @@ local function spawn(f)
 end
 
 function cTextInstance.new(MainObject, AltObject, AppbarInstance)
-	local Appbar 				= AppbarInstance:GetRaw();
+	local Appbar 				= AppbarInstance/'Raw';
 	local TextInstance 			= newproxy(true);
 
 	CopyMetatable(TextInstance, CommonMetatable);
@@ -65,8 +68,8 @@ function InstanceFunctions:ChangeText(NewText, Tween, Duration, Async)
 	AssertType("Argument #3", Duration, "number", 	true);
 	AssertType("Argument #4", Async, 	"boolean", 	true);
 
-	local MainObject 			= self:GetMainObject();
-	local AltObject 			= self:GetAltObject();
+	local MainObject 			= self/'MainObject';
+	local AltObject 			= self/'AltObject';
 
 	AltObject.Text 				= tostring(NewText);
 
@@ -94,8 +97,8 @@ function InstanceFunctions:TweenTextColor(NewColor, Tween, Duration, Async)
 	AssertType("Argument #3", Duration, "number", 	true);
 	AssertType("Argument #4", Async, 	"boolean", 	true);
 
-	local MainObject 			= self:GetMainObject();
-	local AltObject 			= self:GetAltObject();
+	local MainObject 			= self/'MainObject';
+	local AltObject 			= self/'AltObject';
 
 	local function Runner()
 		spawn(function() 	MainObject:TweenTextColor3(NewColor, Tween, Duration); end);
