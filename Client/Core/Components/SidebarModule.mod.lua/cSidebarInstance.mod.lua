@@ -26,6 +26,9 @@ local SharedMetatable 		= {
 	end;
 	__index 				= InstanceFunctions;
 	__len 					= function() return 0x224; end;
+    __div                   = function(self, Index)
+        return SharedVariables[self][Index];
+    end;
 };
 
 local function spawn(f)
