@@ -39,7 +39,7 @@ end
 local function TweenSidebarIn(self, ContentFrame, Tween, Duration, Async)
 	IntentService:BroadcastIntent("SidebarTweeningIn", Tween, Duration, self);
 
-	local Sidebar 			= self:GetRaw();
+	local Sidebar 			= self/'Raw';
 	Sidebar.Position 		= UDim2.new(0, -Sidebar.AbsoluteSize.X, 0, 0);
 
 	local function Runner()
@@ -58,7 +58,7 @@ end
 local function TweenSidebarOut(self, ContentFrame, Tween, Duration, Destroy, Async)
 	IntentService:BroadcastIntent("SidebarTweeningOut", Tween, Duration, Destroy, self);
 
-	local Sidebar 			= self:GetRaw();
+	local Sidebar 			= self/'Raw';
 
 	local function Runner()
 		spawn(function() Sidebar 		:VTweenPosition(UDim2.new(0, -Sidebar.AbsoluteSize.X - 2, 0, 0), 	Tween, Duration); end);
@@ -83,33 +83,33 @@ local function ForwardAnimate(self)
 	local start = tick();
 	local Start 			= self:GetShownItemIndices();
 	self.CanScrollDown		= true;
-	if self:GetFirstItem() == 1 then
+	if self/'FirstItem' == 1 then
 		return; -- Don't want to tween if we're as high as you can go.
 	end
-	self.FirstItem 			= self:GetFirstItem() - 1;
+	self.FirstItem 			= self/'FirstItem' - 1;
 
-	self.NextAbsPos			= self:GetNAP() + 30 + (self:GetNAP() % 30 ~= 0 and 30 - self:GetNAP() % 30 or 0); -- Could probably be optimize but I'm lazy
-	self:GetRaw().ItemContainer:TweenPosition(UDim2.new(0, 0, 0, 30 * -self:GetFirstItem() + 30), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 1/6, true);
+	self.NextAbsPos			= self/'NextAbsPos' + 30 + (self/'NextAbsPos' % 30 ~= 0 and 30 - self/'NextAbsPos' % 30 or 0); -- Could probably be optimize but I'm lazy
+	self/'Raw'.ItemContainer:TweenPosition(UDim2.new(0, 0, 0, 30 * -self/'FirstItem' + 30), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 1/6, true);
 end
 
 local function BackwardAnimate(self)
 	local Start, End 		= self:GetShownItemIndices();
 	local Modifier 			= 30;
 
-	local ItemContainer 	= self:GetRaw().ItemContainer;
+	local ItemContainer 	= self/'Raw'.ItemContainer;
 	if not self:CanScrollDown() then
 		return;
 	end
 
-	if self:GetNAP() and self:GetNAP() - 30 <= self:GetRaw().AbsoluteSize.Y + self:GetRaw().AbsolutePosition.Y then
-		Modifier			= self:GetRaw().AbsoluteSize.Y % 30;
+	if self/'NextAbsPos' and self/'NextAbsPos' - 30 <= self/'Raw'.AbsoluteSize.Y + self/'Raw'.AbsolutePosition.Y then
+		Modifier			= self/'Raw'.AbsoluteSize.Y % 30;
 		self.CanScrollDown	= false;
 	else
-		self.FirstItem 		= self:GetFirstItem() + 1;
+		self.FirstItem 		= self/'FirstItem' + 1;
 	end
-	self.NextAbsPos 		= (self:GetNAP() or self:GetItems()[#self:GetItems()].AbsolutePosition.Y + Modifier) - Modifier;
+	self.NextAbsPos 		= (self/'NextAbsPos' or self/'Items'[#(self/'Items')].AbsolutePosition.Y + Modifier) - Modifier;
 
-	self:GetRaw().ItemContainer:TweenPosition(UDim2.new(0, 0, 0, 30 * -self:GetFirstItem() + Modifier), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 1/6, true);
+	self/'Raw'.ItemContainer:TweenPosition(UDim2.new(0, 0, 0, 30 * -self/'FirstItem' + Modifier), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 1/6, true);
 end
 
 local function CreateItemWithSettings(Settings, Index, Sidebar)
@@ -248,12 +248,12 @@ function InstanceFunctions:CanScrollDown()
 end
 
 function InstanceFunctions:GetShownItemIndices()
-	local Start 						= self:GetFirstItem();
+	local Start 						= self/'FirstItem';
 	local End 							= nil;
 	local didStart 						= false;
-	local ContainerFrame 				= self:GetRaw();
+	local ContainerFrame 				= self/'Raw';
 
-	local Items 						= self:GetItems();
+	local Items 						= self/'Items';
 	local resY 							= ContainerFrame.AbsoluteSize.Y;
 	local offsetY 						= ContainerFrame.AbsolutePosition.Y;
 	for i = math.max(1, Start - 1), #Items do
@@ -281,7 +281,7 @@ function InstanceFunctions:GetItem(Index)
 		ItemCache[self] 				= {};
 	end
 	if not ItemCache[self][Index] then
-		local ItemInstance 				= cItemInstance.new(self:GetItems()[Index]);
+		local ItemInstance 				= cItemInstance.new(self/'Items'[Index]);
 		ItemCache[self][Index] 			= ItemInstance;
 		return ItemInstance;
 	end
@@ -300,13 +300,13 @@ function InstanceFunctions:SetItem(Index, Settings, Tween, Duration, Async)
 		if OldItem then
 			Duration 						= Duration and Duration * 0.5 or 0.5;
 			OldItem:TweenOnX(-150, Tween, Duration, false);
-			OldItem:GetRaw():Destroy();
+			OldItem/'Raw':Destroy();
 		end
 		if ItemCache[self] then
 			ItemCache[self][Index] 			= nil;
 		end
 
-		local RawItem 						= CreateItemWithSettings(Settings, Index - 1, self:GetRaw());
+		local RawItem 						= CreateItemWithSettings(Settings, Index - 1, self/'Raw');
 		SharedVariables[self].Items[Index]	= RawItem;
 		local NewItem 						= self:GetItem(Index);
 
@@ -328,15 +328,15 @@ function InstanceFunctions:SetItem(Index, Settings, Tween, Duration, Async)
 end
 
 function InstanceFunctions:Destroy(Tween, Duration, Async)
-	return TweenSidebarOut(self, self:GetRealContentFrame(), Tween, Duration, true, Async);
+	return TweenSidebarOut(self, self/'ContentFrame', Tween, Duration, true, Async);
 end
 
 function InstanceFunctions:Show(Tween, Duration, Async)
-	return TweenSidebarIn(self, self:GetRealContentFrame(), Tween, Duration, Async);
+	return TweenSidebarIn(self, self/'ContentFrame', Tween, Duration, Async);
 end
 
 function InstanceFunctions:Hide(Tween, Duration, Async)
-	return TweenSidebarOut(self, self:GetRealContentFrame(), Tween, Duration, false, Async);
+	return TweenSidebarOut(self, self/'ContentFrame', Tween, Duration, false, Async);
 end
 
 return cSidebarInstance;
