@@ -16,7 +16,10 @@ local CommonMetatable 		= {
 		else
 			error("\1\1\7\2\2\4", 2);
 		end
-	end
+	end;
+    __div                   = function(self, Index)
+        return SharedVariables[self][Index];
+    end;
 };
 
 local function spawn(f)
@@ -24,7 +27,7 @@ local function spawn(f)
 end
 
 function cIconInstance.new(Side, Icon, AltIcon, AppbarInstance)
-	local Appbar 			= AppbarInstance:GetRaw();
+	local Appbar 			= AppbarInstance/'Raw';
 	local IconInstance 		= newproxy(true);
 
 	CopyMetatable(IconInstance, CommonMetatable);
@@ -44,8 +47,8 @@ function InstanceFunctions:TweenIconColor(NewColor, Tween, Duration, Async)
 	AssertType("Argument #3", Duration, "number", 	true);
 	AssertType("Argument #4", Async, 	"boolean", 	true);
 
-	local MainIcon 		= self:GetMainIcon();
-	local AltIcon 		= self:GetAltIcon();
+	local MainIcon 		= self/'MainIcon';
+	local AltIcon 		= self/'AltIcon';
 	-- Again, wonder if I should make a debounce
 	local function Runner()
 		-- Two need to run at the same time
@@ -68,9 +71,9 @@ function InstanceFunctions:ChangeIcon(NewIcon, Tween, Duration, Async)
 	AssertType("Argument #3", 		Duration, 			"number", 	true);
 	AssertType("Argument #4", 		Async, 				"boolean", 	true);
 
-	local MainIcon 		= self:GetMainIcon();
-	local AltIcon 		= self:GetAltIcon();
-	local Connections 	= self:GetCallback();
+	local MainIcon 		= self/'MainIcon';
+	local AltIcon 		= self/'AltIcon';
+	local Connections 	= self/'Connections';
 	local Duration 		= Duration or 0.27
 
 	local CenterPoint, Alt, Main;
@@ -152,8 +155,8 @@ function InstanceFunctions:SetCallback(Callback)
 	end
 
 	SharedVariables[self].Connections = {
-		Main	 			= self:GetMainIcon().InputEnded:connect(Connection);
-		Alt					= self:GetAltIcon().InputEnded:connect(Connection);
+		Main	 			= self/'MainIcon'.InputEnded:connect(Connection);
+		Alt					= self/'AltIcon'.InputEnded:connect(Connection);
 	};
 end
 
