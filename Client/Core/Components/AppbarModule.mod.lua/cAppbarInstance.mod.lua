@@ -59,7 +59,7 @@ end
 local function TweenAppbarIn(self, ContentFrame, Tween, Duration, Async)
 	IntentService:BroadcastIntent("AppbarTweeningIn", Tween, Duration, self);
 
-	local Appbar 				= self:GetRaw();
+	local Appbar 				= self/'Raw';
 	Appbar.Position 			= UDim2.new(0, 0, 0, -Appbar.AbsoluteSize.Y - 36);
 
 	local function Runner()
@@ -78,8 +78,8 @@ end
 local function TweenAppbarOut(self, Tween, Duration, Destroy, Async)
 	IntentService:BroadcastIntent("AppbarTweeningOut", Tween, Duration, self);
 
-	local Appbar 				= self:GetRaw();
-	local ContentFrame 			= self:GetRealContentFrame();
+	local Appbar 				= self/'Raw';
+	local ContentFrame 			= self/'ContentFrame';
 
 	local function Runner()
 		spawn(function() Appbar		 :VTweenPosition(UDim2.new(0,0,0,-Appbar.AbsoluteSize.Y - 36), Tween, Duration); end);
@@ -87,8 +87,8 @@ local function TweenAppbarOut(self, Tween, Duration, Destroy, Async)
 						 ContentFrame:VTweenSize	(UDim2.new(1,0,1,0),					  Tween, Duration);
 		if Destroy then
 			Core:SetContentFrame(Core:GetOverlay());
-			self:GetRaw():Destroy();
-			self:GetRealContentFrame():Destroy();
+			self/'Raw':Destroy();
+			self/'ContentFrame':Destroy();
 		end
 	end
 
@@ -207,11 +207,11 @@ function InstanceFunctions:TweenBarColor(NewColor, NewBorderColor, Tween, Durati
 	local TextObject 		= self:GetTextObject();
 	local MainTextObject	= TextObject:GetMainObject();
 	local AltTextObject 	= TextObject:GetAltObject();
-	local BorderFrame 		= self:GetRaw().Border;
+	local BorderFrame 		= self/'Raw'.Border;
 
 	-- Wonder if I should do a debounce here or let the user handle it.
 	local function Runner()
-		spawn(function() 	self:GetRaw() :TweenColor3(	NewColor,	Tween,	Duration); end);
+		spawn(function() 	self/'Raw'    :TweenColor3(	NewColor,	Tween,	Duration); end);
 		spawn(function() 	MainTextObject:TweenColor3( NewColor,	Tween,	Duration); end);
 		spawn(function() 	AltTextObject :TweenColor3( NewColor,	Tween,	Duration); end);
 							BorderFrame   :TweenColor3( NewBorderColor, Tween, 	Duration);
@@ -223,19 +223,11 @@ function InstanceFunctions:TweenBarColor(NewColor, NewBorderColor, Tween, Durati
 	end
 end
 
-function InstanceFunctions:GetRaw()
-	return SharedVariables[self].Raw;
-end
-
-function InstanceFunctions:GetRealContentFrame()
-	return SharedVariables[self].ContentFrame;
-end
-
 local ir,il,to = setmetatable({},{__mode = 'k'}),setmetatable({},{__mode = 'k'}),setmetatable({},{__mode = 'k'});
 
 function InstanceFunctions:GetLeftIcon()
 	if not il[self] then
-		local Appbar 			= self:GetRaw();
+		local Appbar 			= self/'Raw';
 		local Icon 				= Appbar.TopLeftButton;
 		local AltIcon 			= Appbar.TopLeftButton_alt;
 
@@ -246,7 +238,7 @@ end
 
 function InstanceFunctions:GetRightIcon()
 	if not ir[self] then
-		local Appbar 			= self:GetRaw();
+		local Appbar 			= self/'Raw';
 		local Icon 				= Appbar.TopRightButton;
 		local AltIcon 			= Appbar.TopRightButton_alt;
 
@@ -257,7 +249,7 @@ end
 
 function InstanceFunctions:GetTextObject()
 	if not to[self] then
-		local Appbar 			= self:GetRaw();
+		local Appbar 			= self/'Raw';
 		local MainObject 		= Appbar.TopHeader;
 		local AltObject 		= Appbar.TopHeader_alt;
 
@@ -276,10 +268,6 @@ end
 
 function InstanceFunctions:Hide(Tween, Duration, Async)
 	return TweenAppbarOut(self, Tween, Duration, false, Async);
-end
-
-function InstanceFunctions:GetHeight()
-	return SharedVariables[self].Height;
 end
 
 return cAppbarInstance; -- I don't return userdata because the thing is only used in AppbarModule
